@@ -1,3 +1,41 @@
-{{sentiment}}
-<br>
-{{interpretation}}
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" ></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+<div class="jumbotron">
+    <h1 class="display-4">{{article.title}}!</h1>
+    <p class="lead">{{article.summary}}</p>
+</div>
+
+<div class="container">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                This article is {{interpretation}}.
+            </div>
+            <div class = "card-footer">
+                Sentiment score: {{sentiment}} <br>
+            </div>
+        </div>
+        <br>
+        <div class="text-center">
+            <a href="http://127.0.0.1:8000/app/">Home</a> |
+            <a href="{{article_url}}" target="_blank">Article source</a>
+        </div>
+    </div>
+    <div class="col">
+    </div>
+    <div class="col">
+    </div>
+</div>
+
+
+
+</body>
+</html>
