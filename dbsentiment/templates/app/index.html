@@ -12,21 +12,9 @@
   <h1 class="display-4">Welcome!</h1>
   <p class="lead">This is a simple sentiment analysis tool.</p>
 	<hr class="my-4">
-	<form action="result/" method="post" >
-		{% csrf_token %}
-		<div class="form-group">
-			{{ url }}
-		</div>
-		<input type="submit" name="Analyse" class="btn btn-primary" />
-	</form>
-	<hr class="my-4">
-	<form  method="post" >
-		{% csrf_token %}
-		<div class="form-group">
-			{{ company }}
-		</div>
-		<input type="submit" name="AnalyseCompany" class="btn btn-primary" />
-	</form>
+	<a href="article" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Analyse article</a>
+		<a href="company" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Analyse company</a>
+
 </div>
 </body>
 </html>
