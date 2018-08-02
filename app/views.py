@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
+import newspaper
 from newspaper import Article
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import sent_tokenize
@@ -30,12 +31,15 @@ def get_article(url):
     return article
 
 def get_sentiment(text):
-    analyzer = SentimentIntensityAnalyzer()
-    text_sentences = sent_tokenize(text)
     sum = 0
-    for sentence in text_sentences:
-        sum += analyzer.polarity_scores(sentence)['compound']
-    return sum/len(text_sentences)
+    if text!="":
+        analyzer = SentimentIntensityAnalyzer()
+        text_sentences = sent_tokenize(text)
+        for sentence in text_sentences:
+            sum += analyzer.polarity_scores(sentence)['compound']
+        return sum/len(text_sentences)
+    else:
+        return sum/1
 
 def interpret(score):
     if (score >= 0.05):
@@ -57,6 +61,24 @@ def get_company_scores(list):
         article_dates += [article.publish_date]
     return company_scores, article_dates
 
+def get_company_source_dynamic (url):
+    print ("in companies function")
+    source = newspaper.build('https://edition.cnn.com/search/?q=facebook', memoize_articles=False)
+    print (source.size())
+    company_scores = []
+    article_dates = []
+    for article in source.articles:
+        article.download()
+        article_text=""
+        try:
+            article.parse()
+            article_text = article.text
+        except:
+            article_text = ""
+        sentiment = get_sentiment(article.text)
+        company_scores +=[sentiment]
+        article_dates += [article.publish_date]
+    return company_scores, article_dates
 
 def index(request):
     template = loader.get_template('index.html')
@@ -121,13 +143,22 @@ def company(request):
     if request.method == 'POST':
         company = CompanyForm(request.POST)
         print (company)
+        base_url = "https://www.ft.com/search?q=";
 
         # Validate data and redirect to success
         if company.is_valid():
             input = request.POST.get('company')
+            query = input.lower()
             if input == "Deutsche Bank":
                 scores, dates = get_company_scores(DB)
                 simple_plot = plot_graph(dates, scores)
+            else:
+                print ("hello")
+                url = base_url + query
+                print (url)
+                scores,dates = get_company_source_dynamic(url)
+                simple_plot = plot_graph(dates, scores)
+
             return render(request, 'company_result.html', {'company': input, 'scores':scores, 'dates':dates, 'plot':simple_plot})
 
     # Other requests should render the page and blank form
