@@ -1,0 +1,28 @@
+{
+	"ft": {
+		
+		"link": "https://www.ft.com/?edition=uk"
+	},
+	"bloomberg": {
+		"link":"https://www.bloomberg.com/europe"
+	},
+	"theguardian": {
+		
+		"link": "https://www.theguardian.com/international"
+	},
+  "nyt": {
+    "link": "https://www.nytimes.com/"
+  },
+  "bust": {
+    "link": "https://www.business-standard.com/"
+  },
+  "wsj": {
+    "link": "https://www.wsj.com/europe"
+  },
+  "economist": {
+    "link": "https://www.economist.com/"
+  },
+  "washingtonpost": {
+    "link": "https://www.washingtonpost.com/"
+  }
+}
