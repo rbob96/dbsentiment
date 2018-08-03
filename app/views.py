@@ -2,7 +2,10 @@ from __future__ import unicode_literals
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 import newspaper
+import json
+from pprint import pprint
 from newspaper import Article
+from newspaper import news_pool
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import sent_tokenize
 from django.shortcuts import render
@@ -20,9 +23,15 @@ DB = ["https://www.bloomberg.com/news/articles/2018-07-27/deutsche-bank-is-said-
       "https://www.bloomberg.com/view/articles/2018-07-25/for-deutsche-bank-escapee-freedom-brings-its-own-woes",
       "https://www.bloomberg.com/news/articles/2018-07-25/deutsche-bank-vows-to-defend-fixed-income-trading-after-cutbacks"]
 
-JP = []
+with open('/home/ruxi/NewsScraper/scraped_articles.json') as f:
+    data = json.load(f)
 
-MS = []
+def get_relevant_articles(articles, query):
+    relevant_articles = []
+    for article in articles:
+        if query in articles['title']:
+            relevant_articles += [article]
+    return relevant_articles
 
 def get_article(url):
     article = Article(url)
@@ -61,24 +70,13 @@ def get_company_scores(list):
         article_dates += [article.publish_date]
     return company_scores, article_dates
 
-def get_company_source_dynamic (url):
-    print ("in companies function")
-    source = newspaper.build('https://edition.cnn.com/search/?q=facebook', memoize_articles=False)
-    print (source.size())
-    company_scores = []
-    article_dates = []
-    for article in source.articles:
-        article.download()
-        article_text=""
-        try:
-            article.parse()
-            article_text = article.text
-        except:
-            article_text = ""
-        sentiment = get_sentiment(article.text)
-        company_scores +=[sentiment]
-        article_dates += [article.publish_date]
-    return company_scores, article_dates
+def get_dates_scores(relevant_articles):
+    dates=[]
+    scores=[]
+    for article in relevant_articles:
+        dates += [article['published']]
+        scores += [article['sentiment']]
+    return dates, scores
 
 def index(request):
     template = loader.get_template('index.html')
@@ -143,7 +141,6 @@ def company(request):
     if request.method == 'POST':
         company = CompanyForm(request.POST)
         print (company)
-        base_url = "https://www.ft.com/search?q=";
 
         # Validate data and redirect to success
         if company.is_valid():
@@ -154,9 +151,8 @@ def company(request):
                 simple_plot = plot_graph(dates, scores)
             else:
                 print ("hello")
-                url = base_url + query
-                print (url)
-                scores,dates = get_company_source_dynamic(url)
+                relevant_articles = get_relevant_articles(data,query)
+                dates,scores = get_dates_scores(relevant_articles)
                 simple_plot = plot_graph(dates, scores)
 
             return render(request, 'company_result.html', {'company': input, 'scores':scores, 'dates':dates, 'plot':simple_plot})
