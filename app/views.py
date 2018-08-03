@@ -16,21 +16,21 @@ from .forms import ArticleForm, CompanyForm
 
 # Create your views here.
 
-DB = ["https://www.bloomberg.com/news/articles/2018-07-27/deutsche-bank-is-said-to-cut-staff-in-chicago-amid-u-s-retreat",
-      "https://www.bloomberg.com/news/articles/2018-07-25/ex-deutsche-bank-traders-charged-in-expanding-spoofing-probe",
-      "https://www.bloomberg.com/news/articles/2018-07-25/deutsche-bank-s-sewing-talks-about-growth-again-amid-cutbacks",
-      "https://www.bloomberg.com/view/articles/2018-07-25/deutsche-bank-is-playing-for-time",
-      "https://www.bloomberg.com/view/articles/2018-07-25/for-deutsche-bank-escapee-freedom-brings-its-own-woes",
-      "https://www.bloomberg.com/news/articles/2018-07-25/deutsche-bank-vows-to-defend-fixed-income-trading-after-cutbacks"]
-
+sources = ['nyt','bust','ft','bloomberg','theguardian','wsj','economist','washingtonpost']
 with open('/home/ruxi/NewsScraper/scraped_articles.json') as f:
     data = json.load(f)
 
-def get_relevant_articles(articles, query):
+all_articles = []
+for source in sources:
+    all_articles += data['newspapers'][source]['articles']
+
+print ('Facebook' in all_articles[0]['title'])
+
+def get_relevant_articles(all_articles, query):
     relevant_articles = []
-    for article in articles:
-        if query in articles['title']:
-            relevant_articles += [article]
+    for i in range (0,len(all_articles)):
+        if all_articles[i]['title'] is not None and (query in all_articles[i]['title'] or query in all_articles[i]['text']):
+           relevant_articles += [all_articles[i]]
     return relevant_articles
 
 def get_article(url):
@@ -61,22 +61,18 @@ def interpret(score):
         return "score out of bounds"
 
 def get_company_scores(list):
-    company_scores = []
-    article_dates = []
+    company_scores = {}
     for url in list:
         article = get_article(url)
         sentiment = get_sentiment(article.text)
-        company_scores += [sentiment]
-        article_dates += [article.publish_date]
-    return company_scores, article_dates
+        company_scores[article.publish_date] = sentiment
+    return company_scores
 
 def get_dates_scores(relevant_articles):
-    dates=[]
-    scores=[]
+    company_scores = {}
     for article in relevant_articles:
-        dates += [article['published']]
-        scores += [article['sentiment']]
-    return dates, scores
+        company_scores[article['published']] = article['sentiment']
+    return company_scores
 
 def index(request):
     template = loader.get_template('index.html')
@@ -110,7 +106,15 @@ def article(request):
 
     return render(request, 'article.html', {'url': url})
 
-def plot_graph (x_axis, y_axis):
+def plot_graph (dictionary):
+    dates = list(dictionary.keys())
+    dates.sort()
+    x_axis = []
+    y_axis = []
+    for date in dates:
+        x_axis +=[date]
+        y_axis +=[dictionary[date]]
+
     trace0 = go.Scatter(
         x=x_axis,
         y=y_axis,
@@ -118,16 +122,26 @@ def plot_graph (x_axis, y_axis):
         name='lines'
     )
     data = [trace0]
-    layout = go.Layout(
-        # autosize=False,
-        # width=900,
-        # height=500,
-
+    layout = dict(
+        title='Sentiment Over Time',
         xaxis=dict(
-            autorange=True
-        ),
-        yaxis=dict(
-            autorange=True
+            rangeselector=dict(
+                buttons=list([
+                    dict(count=1,
+                         label='1m',
+                         step='month',
+                         stepmode='backward'),
+                    dict(count=6,
+                         label='6m',
+                         step='month',
+                         stepmode='backward'),
+                    dict(step='all')
+                ])
+            ),
+            rangeslider=dict(
+                visible=True
+            ),
+            type='date'
         )
     )
 
@@ -145,17 +159,19 @@ def company(request):
         # Validate data and redirect to success
         if company.is_valid():
             input = request.POST.get('company')
-            query = input.lower()
+            query = input
             if input == "Deutsche Bank":
                 scores, dates = get_company_scores(DB)
                 simple_plot = plot_graph(dates, scores)
             else:
                 print ("hello")
-                relevant_articles = get_relevant_articles(data,query)
-                dates,scores = get_dates_scores(relevant_articles)
-                simple_plot = plot_graph(dates, scores)
+                relevant_articles = get_relevant_articles(all_articles,query)
+                print (relevant_articles)
+                dates_scores = get_dates_scores(relevant_articles)
+                print (dates_scores)
+                simple_plot = plot_graph(dates_scores)
 
-            return render(request, 'company_result.html', {'company': input, 'scores':scores, 'dates':dates, 'plot':simple_plot})
+            return render(request, 'company_result.html', {'company': input, 'plot':simple_plot})
 
     # Other requests should render the page and blank form
     else:
