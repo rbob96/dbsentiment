@@ -220,6 +220,7 @@ def company(request):
             #print (dates_scores)
             simple_plot = plot_sentiment_graph(dates_scores)
             share_prices = get_company_stocks('FB')
+            #print (share_prices)
             share_plot = plot_share_graph(share_prices)
 
             return render(request, 'company_result.html', {'company': input, 'plot':simple_plot, 'share_plot':share_plot})
