@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 import newspaper
+from plotly import tools
 import json
 from pprint import pprint
 from newspaper import Article
@@ -18,7 +19,7 @@ from alpha_vantage.timeseries import TimeSeries
 # Create your views here.
 
 # list of available sources
-sources = ['nyt','bust','ft','bloomberg','theguardian','wsj','economist','washingtonpost']
+sources = ['nyt','bbc','ft','bloomberg','theguardian','wsj','economist','washingtonpost','investors']
 
 # load output from json file and create a list of articles from all available sources
 
@@ -160,6 +161,9 @@ def plot_sentiment_graph (dictionary):
 
 # similar function, plot share prices and dates - will probably merge them in one function since code is redundant
 def plot_share_graph (dictionary):
+
+
+
     dates = list(dictionary.keys())
     dates.sort()
 
@@ -169,13 +173,16 @@ def plot_share_graph (dictionary):
         x_axis +=[date]
         y_axis +=[dictionary[date]['1. open']]
 
+
     trace0 = go.Scatter(
         x=x_axis,
         y=y_axis,
         mode='lines',
         name='lines'
     )
+
     data = [trace0]
+
     layout = dict(
         title='Share Price Over Time',
         xaxis=dict(
@@ -184,7 +191,7 @@ def plot_share_graph (dictionary):
                     dict(count=1,
                          label='1m',
                          step='month',
-                         stepmode='backward'),
+                         stepmode='backward'), 
                     dict(count=6,
                          label='6m',
                          step='month',
@@ -203,6 +210,86 @@ def plot_share_graph (dictionary):
     plot_div = plot(fig, output_type='div', include_plotlyjs=False)
     return plot_div
 
+def plot_subplot(sentiment, share_prices):
+    dates_s = list(sentiment.keys())
+    dates_s.sort()
+
+    x_axis_s = []
+    y_axis_s = []
+    for date in dates_s:
+        x_axis_s += [date]
+        y_axis_s += [sentiment[date]]
+
+    trace0 = go.Scatter(
+        x=x_axis_s,
+        y=y_axis_s,
+        mode='lines',
+        name='sentiment'
+    )
+
+    dates = list(share_prices.keys())
+    dates.sort()
+
+    x_axis_p = []
+    y_axis_p = []
+    for date in dates:
+        x_axis_p += [date]
+        y_axis_p += [share_prices[date]['1. open']]
+
+    trace1 = go.Scatter(
+        x=x_axis_p,
+        y=y_axis_p,
+        mode='lines',
+        name='share price'
+    )
+
+
+    fig = tools.make_subplots(rows=2, cols=1, subplot_titles=('Sentiment Score','Share Price')
+                              )
+
+    fig.append_trace(trace0, 1, 1)
+    fig.append_trace(trace1, 2, 1)
+
+    fig['layout'].update(height=1200, width=1100, title='Company Sentiment vs Company Share Price', autosize=True, xaxis=dict(
+            rangeselector=dict(
+                buttons=list([
+                    dict(count=1,
+                         label='1m',
+                         step='month',
+                         stepmode='backward'),
+                    dict(count=6,
+                         label='6m',
+                         step='month',
+                         stepmode='backward'),
+                    dict(step='all')
+                ])
+            ),
+            rangeslider=dict(
+                visible=True
+            ),
+            type='date'
+        ),yaxis=dict(title='Sentiment'),xaxis2=dict(
+            rangeselector=dict(
+                buttons=list([
+                    dict(count=1,
+                         label='1m',
+                         step='month',
+                         stepmode='backward'),
+                    dict(count=6,
+                         label='6m',
+                         step='month',
+                         stepmode='backward'),
+                    dict(step='all')
+                ])
+            ),
+            rangeslider=dict(
+                visible=True
+            ),
+            type='date',
+        title = "Date"
+        ) , yaxis2=dict(title='Share Price'))
+    return plot(fig, output_type='div', include_plotlyjs=False)
+
 # company view
 def company(request):
     # If POST request, process the form
@@ -218,12 +305,25 @@ def company(request):
             #print (relevant_articles)
             dates_scores = get_dates_scores(relevant_articles)
             #print (dates_scores)
-            simple_plot = plot_sentiment_graph(dates_scores)
-            share_prices = get_company_stocks('FB')
+            #simple_plot = plot_sentiment_graph(dates_scores)
+            if input == 'Facebook' or input=='facebook':
+                share_prices = get_company_stocks('FB')
+            elif input == 'Apple'or input=='apple':
+                share_prices = get_company_stocks('AAPL')
+            elif input == 'J.P. Morgan' or input=='j.p. morgan':
+                share_prices = get_company_stocks('JPM')
+            elif input== 'Tesla' or input=='tesla':
+                share_prices= get_company_stocks('TSLA')
+            elif input == 'Samsung' or input=='samsung':
+                share_prices = get_company_stocks('SMSN.L')
+            elif input == 'Deutsche Bank' or input =='deutsche bank':
+                share_prices = get_company_stocks('DB')
+            elif input=='Google' or input=='google':
+                share_prices=get_company_stocks('GOOGL')
             #print (share_prices)
-            share_plot = plot_share_graph(share_prices)
+            plot = plot_subplot(dates_scores,share_prices)
 
-            return render(request, 'company_result.html', {'company': input, 'plot':simple_plot, 'share_plot':share_plot})
+            return render(request, 'company_result.html', {'company': input, 'plot':plot})
 
     # Other requests should render the page and blank form
     else:

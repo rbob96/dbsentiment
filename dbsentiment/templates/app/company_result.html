@@ -1,8 +1,35 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
+<head>
+    <style>
+    body {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+        /* Customize container */
+@media (min-width: 48em) {
+  .container {
+    max-width: 80rem;
+  }
+}
+.container-narrow > hr {
+  margin: 1rem 0;
+}
+    </style>
+</head>
 <!-- Sentiment graph -->
-<div class="col-md-12">{{plot|safe}}</div>
+<body>
+<div class="container">
+    <div class="text-center">
+            <a href="http://127.0.0.1:8000/app/company/">Try a different company</a> |
+            <a href="http://127.0.0.1:8000/app/">Home</a>
+    </div>
+    </div>
 
+
+<div>{{plot|safe}}</div>
+
+
+</body>
 <!-- Share prices graph -->
-<div class="col-md-12">{{share_plot|safe}}</div>
+
 

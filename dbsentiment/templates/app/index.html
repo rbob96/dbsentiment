@@ -4,17 +4,164 @@
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" ></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <style>
+.button {
+    background-color: #0088cc; /* Blue */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+.button3 {padding: 14px 40px;}
+        /* Space out content a bit */
+body {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+/* Custom page header */
+.header {
+  padding-bottom: 1rem;
+  border-bottom: .05rem solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 3rem;
+}
+
+/* Custom page footer */
+.footer {
+  padding-top: 1.5rem;
+  color: #777;
+  border-top: .05rem solid #e5e5e5;
+}
+
+/* Customize container */
+@media (min-width: 48em) {
+  .container {
+    max-width: 46rem;
+  }
+}
+.container-narrow > hr {
+  margin: 2rem 0;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  border-bottom: .05rem solid #e5e5e5;
+}
+.jumbotron .btn {
+  padding: .75rem 1.5rem;
+  font-size: 1.5rem;
+}
+
+/* Supporting marketing content */
+.marketing {
+  margin: 3rem 0;
+}
+.marketing p + h4 {
+  margin-top: 1.5rem;
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 48em) {
+  /* Remove the padding we set earlier */
+  .header,
+  .marketing,
+  .footer {
+    padding-right: 0;
+    padding-left: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 2rem;
+  }
+  /* Remove the bottom border on the jumbotron for visual effect */
+  .jumbotron {
+    border-bottom: 0;
+  }
+}
+
+    </style>
 </head>
 
 <body>
 
-<div class="jumbotron">
-  <h1 class="display-4">Welcome!</h1>
-  <p class="lead">This is a simple sentiment analysis tool.</p>
-	<hr class="my-4">
-	<a href="article" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Analyse article</a>
-		<a href="company" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Analyse company</a>
+    <div class="container">
+      <div class="header clearfix">
+        <h3 class="text-muted text-centred">Sentiment Analysis</h3>
+      </div>
 
-</div>
+      <div class="jumbotron">
+        <h1 class="display-3">Welcome!</h1>
+        <p class="lead">This is a simple sentiment analysis tool. You can use it to obtain the sentiment score of a single article, or research the overall sentiment for a company.</p>
+          <br>
+          <div class="row">
+              <div class="col-md-2">
+
+              </div>
+              <div class="col-md-4">
+                  <a href="article" class="button button3" role="button" aria-pressed="true">Article</a>
+              </div>
+              <div class="col-md-4">
+                  <a href="company" class="button button3" role="button" aria-pressed="true">Company</a>
+              </div>
+              <div class="col-md-2">
+
+              </div>
+          </div>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-lg-6">
+          <h4>Calculating Scores</h4>
+          <p>Using the nltk VADER sentiment analysis library. <a href="https://www.nltk.org/_modules/nltk/sentiment/vader.html">VADER</a></p>
+
+
+          <h4>Fetching Articles</h4>
+          <p>Done using the very clever Python Newspaper library. <a href="http://newspaper.readthedocs.io/en/latest/">PythonNewspaper3k</a></p>
+
+
+<br>
+        </div>
+        <div class="col-lg-6">
+          <h4>Share Prices</h4>
+          <p>Using the Alpha Vantage API to fetch daily share prices. <a href="https://www.alphavantage.co/">Alpha Vantage</a></p>
+
+          <h4>Plots</h4>
+          <p>Using the powerful Plotly tool which easily integrates with Python. <a href="https://plot.ly/">Plotly</a></p>
+
+
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p>&copy; Company 2017</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+
 </body>
 </html>
