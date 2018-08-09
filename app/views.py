@@ -19,7 +19,7 @@ from alpha_vantage.timeseries import TimeSeries
 # Create your views here.
 
 # list of available sources
-sources = ['nyt','bbc','ft','bloomberg','theguardian','wsj','economist','washingtonpost','investors']
+sources = ['nyt','cnn','ft','bloomberg','theguardian','wsj','economist','washingtonpost','investors']
 
 # load output from json file and create a list of articles from all available sources
 
@@ -35,9 +35,14 @@ apiKey = '03WCM1DO8Y5FKB3E'
 # get all articles that contain the company a user searches for either in the title or in the text of the article
 def get_relevant_articles(all_articles, query):
     relevant_articles = []
+    mz = []
     for i in range (0,len(all_articles)):
-        if all_articles[i]['title'] is not None and (query in all_articles[i]['title'] or query in all_articles[i]['text']):
-           relevant_articles += [all_articles[i]]
+        if (query == 'Facebook'):
+            if all_articles[i]['title'] is not None and (query in all_articles[i]['title'] or query in all_articles[i]['text'] or "Mark Zuckerberg" in all_articles[i]['title'] or "Mark Zuckerberg" in all_articles[i]['text']):
+                relevant_articles += [all_articles[i]]
+        else:
+            if all_articles[i]['title'] is not None and (query in all_articles[i]['title'] or query in all_articles[i]['text']):
+                relevant_articles += [all_articles[i]]
     return relevant_articles
 
 # download and parse a single article and return an article object
@@ -103,10 +108,12 @@ def article(request):
             url = request.POST.get('url')
             article = get_article(url)
             sentiment = get_sentiment(article.text)
+            article.nlp()
+            print (article.keywords)
             interpretation = interpret(sentiment)
             # get_article(url)
 
-            return render(request, 'result.html', {'sentiment': sentiment, 'interpretation':interpretation,'article':article, 'article_url':url})
+            return render(request, 'result.html', {'sentiment': sentiment, 'interpretation':interpretation,'article':article, 'article_url':url, 'article_keywords':article.keywords})
 
     # Other requests should render the page and blank form
     else:
